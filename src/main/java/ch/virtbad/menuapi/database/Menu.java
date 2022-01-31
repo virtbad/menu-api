@@ -47,7 +47,7 @@ public class Menu {
 
     private int label;
 
-    @OneToMany
+    @ManyToMany
     private List<Price> prices;
 
     @JsonProperty
