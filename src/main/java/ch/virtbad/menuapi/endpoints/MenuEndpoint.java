@@ -4,21 +4,49 @@ import ch.virtbad.menuapi.database.Menu;
 import ch.virtbad.menuapi.database.Price;
 import ch.virtbad.menuapi.database.repositories.MenuRepository;
 import ch.virtbad.menuapi.database.repositories.PriceRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
+import org.apache.lucene.search.Query;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
+import org.hibernate.search.jpa.Search;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-@RequiredArgsConstructor
 @RequestMapping("/menu")
 @RestController
 public class MenuEndpoint {
 
     private final MenuRepository menus;
     private final PriceRepository prices;
+
+    private final FullTextEntityManager search;
+    private final QueryBuilder searchBuilder;
+    private final CriteriaBuilder searchCriteria;
+
+    // TODO: Make config property
+    private int searchResultAmount = 10;
+
+    public MenuEndpoint(MenuRepository menus, PriceRepository prices, EntityManagerFactory factory) throws InterruptedException {
+        this.menus = menus;
+        this.prices = prices;
+
+        search = Search.getFullTextEntityManager(factory.createEntityManager());
+        search.createIndexer().startAndWait();
+
+        searchBuilder = search.getSearchFactory().buildQueryBuilder().forEntity(Menu.class).get();
+
+        searchCriteria = search.getCriteriaBuilder();
+    }
 
     @GetMapping("")
     public List<UUID> getAllMenus() {
@@ -30,6 +58,25 @@ public class MenuEndpoint {
         Optional<Menu> menu = menus.findById(id);
         if (menu.isEmpty()) throw new MenuNotFound();
         return menu.get();
+    }
+
+    @GetMapping("/search")
+    public List<Menu> searchMenus(@RequestParam(name = "query") String input, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "-1") int channel, @RequestParam(defaultValue = "-1") int label, @RequestParam(defaultValue = "0") long start, @RequestParam(defaultValue = "32503676400000") long end) {
+        // Apply basic text search query
+        Query text = searchBuilder.keyword().fuzzy().onFields("title", "description").matching(input).createQuery(); // TODO: Optimize for better menu discoverability, e.g. burger and vegiburger
+
+        // Apply other criteria like date or channel or whatever
+        Criteria criteria = search.unwrap(Session.class).createCriteria(Menu.class); // TODO: Find a way to use jpa criteria queries together with full text queries.
+
+        if (channel != -1) criteria.add(Restrictions.eq("channel", channel));
+        if (label != -1) criteria.add(Restrictions.eq("label", label));
+        if (start != Long.MIN_VALUE || end != Long.MAX_VALUE) criteria.add(Restrictions.between("date", new Date(start), new Date(end)));
+
+        // Create final query
+        FullTextQuery query = search.createFullTextQuery(text).setCriteriaQuery(criteria).setMaxResults(searchResultAmount).setFirstResult(searchResultAmount * page);
+
+        // Execute
+        return query.getResultList();
     }
 
     @PostMapping("")

@@ -30,8 +30,9 @@ dependencies {
     // Testing dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    // Sql Drivers
+    // Database Stuff
     implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.4'
+    implementation 'org.hibernate:hibernate-search-orm:5.11.10.Final'
 }
 
 test {

@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@Indexed
 @Entity
 public class Menu {
 
@@ -36,9 +39,11 @@ public class Menu {
     }
 
     @Column(length = 512)
+    @Field
     private String title;
 
     @Column(length = 512)
+    @Field
     private String description;
 
     private Date date;
