@@ -12,13 +12,13 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
@@ -34,7 +34,7 @@ public class MenuEndpoint {
     private final CriteriaBuilder searchCriteria;
 
     // TODO: Make config property
-    private int searchResultAmount = 10;
+    private int pageSize = 20;
 
     public MenuEndpoint(MenuRepository menus, PriceRepository prices, EntityManagerFactory factory) throws InterruptedException {
         this.menus = menus;
@@ -73,10 +73,31 @@ public class MenuEndpoint {
         if (start != Long.MIN_VALUE || end != Long.MAX_VALUE) criteria.add(Restrictions.between("date", new Date(start), new Date(end)));
 
         // Create final query
-        FullTextQuery query = search.createFullTextQuery(text).setCriteriaQuery(criteria).setMaxResults(searchResultAmount).setFirstResult(searchResultAmount * page);
+        FullTextQuery query = search.createFullTextQuery(text).setCriteriaQuery(criteria).setMaxResults(pageSize).setFirstResult(pageSize * page);
 
         // Execute
         return query.getResultList();
+    }
+
+    @GetMapping("/all")
+    public List<Menu> allMenus(@RequestParam(defaultValue = "0") int page) {
+        return menus.findAll(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "date")));
+    }
+
+    @GetMapping("/date")
+    public List<Menu> dateMenus(@RequestParam(defaultValue = "0") long date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date == 0 ? new Date() : new Date(date));
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        Date start = calendar.getTime();
+        calendar.add(Calendar.DATE, 1);
+        Date end = calendar.getTime();
+
+        return menus.findAllByDateBetween(start, end);
     }
 
     @PostMapping("")
