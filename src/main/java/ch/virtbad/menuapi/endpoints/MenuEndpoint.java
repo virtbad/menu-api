@@ -12,16 +12,19 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
+/**
+ * This collection of endpoints are used to manipulate or get large numbers of menus.
+ */
 @RequestMapping("/menu")
 @RestController
 public class MenuEndpoint {
@@ -31,10 +34,9 @@ public class MenuEndpoint {
 
     private final FullTextEntityManager search;
     private final QueryBuilder searchBuilder;
-    private final CriteriaBuilder searchCriteria;
 
-    // TODO: Make config property
-    private int pageSize = 20;
+    @Value("${custom.rest.pagesize:20}")
+    private int pageSize;
 
     public MenuEndpoint(MenuRepository menus, PriceRepository prices, EntityManagerFactory factory) throws InterruptedException {
         this.menus = menus;
@@ -44,15 +46,11 @@ public class MenuEndpoint {
         search.createIndexer().startAndWait();
 
         searchBuilder = search.getSearchFactory().buildQueryBuilder().forEntity(Menu.class).get();
-
-        searchCriteria = search.getCriteriaBuilder();
     }
 
-    @GetMapping("")
-    public List<UUID> getAllMenus() {
-        return menus.findAllIds();
-    }
-
+    /**
+     * This request returns information about a menu.
+     */
     @GetMapping("/{id}")
     public Menu getMenu(@PathVariable UUID id) {
         Optional<Menu> menu = menus.findById(id);
@@ -60,6 +58,9 @@ public class MenuEndpoint {
         return menu.get();
     }
 
+    /**
+     * This request is used to search in the database of menus.
+     */
     @GetMapping("/search")
     public List<Menu> searchMenus(@RequestParam(name = "query") String input, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "-1") int channel, @RequestParam(defaultValue = "-1") int label, @RequestParam(defaultValue = "0") long start, @RequestParam(defaultValue = "32503676400000") long end) {
         // Apply basic text search query
@@ -70,7 +71,8 @@ public class MenuEndpoint {
 
         if (channel != -1) criteria.add(Restrictions.eq("channel", channel));
         if (label != -1) criteria.add(Restrictions.eq("label", label));
-        if (start != Long.MIN_VALUE || end != Long.MAX_VALUE) criteria.add(Restrictions.between("date", new Date(start), new Date(end)));
+        if (start != Long.MIN_VALUE || end != Long.MAX_VALUE)
+            criteria.add(Restrictions.between("date", new Date(start), new Date(end)));
 
         // Create final query
         FullTextQuery query = search.createFullTextQuery(text).setCriteriaQuery(criteria).setMaxResults(pageSize).setFirstResult(pageSize * page);
@@ -79,11 +81,17 @@ public class MenuEndpoint {
         return query.getResultList();
     }
 
+    /**
+     * With this request, you can fetch all menus present.
+     */
     @GetMapping("/all")
     public List<Menu> allMenus(@RequestParam(defaultValue = "0") int page) {
         return menus.findAll(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "date")));
     }
 
+    /**
+     * This request fetches all menus on a specific date.
+     */
     @GetMapping("/date")
     public List<Menu> dateMenus(@RequestParam(defaultValue = "0") long date) {
         Calendar calendar = Calendar.getInstance();
@@ -100,6 +108,9 @@ public class MenuEndpoint {
         return menus.findAllByDateBetween(start, end);
     }
 
+    /**
+     * This request is used to push a new menu into the database.
+     */
     @PostMapping("")
     public void pushMenu(HttpServletRequest request, @RequestBody RequestMenu menu) {
         if (!"127.0.0.1".equals(request.getRemoteAddr())) throw new NotLocalHost();
@@ -142,10 +153,15 @@ public class MenuEndpoint {
     @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Menu not found.")
     private static class MenuNotFound extends RuntimeException { }
 
+    /**
+     * This exception is thrown when a localhost only request is made from another host.
+     */
     @ResponseStatus(code = HttpStatus.FORBIDDEN)
     private static class NotLocalHost extends RuntimeException { }
 
+    /**
+     * This exception is thrown when not all features of a body are provied.
+     */
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     private static class NotAllProvided extends RuntimeException { }
-
 }

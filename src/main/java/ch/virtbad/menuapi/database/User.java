@@ -28,6 +28,10 @@ public class User {
 
     private Date joined;
 
+    private boolean admin;
+
+    private boolean banned;
+
     public User(String tag, String firstname, String lastname) {
         this.tag = tag;
         this.firstname = firstname;

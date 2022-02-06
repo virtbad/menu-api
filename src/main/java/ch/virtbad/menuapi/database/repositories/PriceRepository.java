@@ -5,8 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface
-PriceRepository extends CrudRepository<Price, Integer> {
+public interface PriceRepository extends CrudRepository<Price, Integer> {
 
     Price findFirstByTagAndPrice(String tag, float price);
 

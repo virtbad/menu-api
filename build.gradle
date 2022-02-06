@@ -27,6 +27,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // JWT dependencies
+    implementation group: 'org.pac4j', name: 'pac4j-oidc', version: '5.1.3'
+
     // Testing dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
