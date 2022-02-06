@@ -151,7 +151,7 @@ public class MenuEndpoint {
      * This exception is thrown when a menu is not found.
      */
     @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "Menu not found.")
-    private static class MenuNotFound extends RuntimeException { }
+    public static class MenuNotFound extends RuntimeException { }
 
     /**
      * This exception is thrown when a localhost only request is made from another host.
@@ -160,7 +160,7 @@ public class MenuEndpoint {
     private static class NotLocalHost extends RuntimeException { }
 
     /**
-     * This exception is thrown when not all features of a body are provied.
+     * This exception is thrown when not all features of a body are provided.
      */
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     private static class NotAllProvided extends RuntimeException { }

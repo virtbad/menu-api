@@ -1,5 +1,6 @@
 package ch.virtbad.menuapi.database;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,12 +30,14 @@ public class Comment {
         this.content = content;
         this.rating = rating;
         this.created = new Date();
+        this.edited = false;
     }
 
     @JoinColumn(name = "user")
     @ManyToOne
     private User user;
 
+    @JsonIgnore
     @JoinColumn(name = "menu")
     @ManyToOne
     private Menu menu;
@@ -42,11 +45,13 @@ public class Comment {
     @Column(length = 64)
     private String title;
 
-    @Column(length = 255)
+    @Column(length = 256)
     private String content;
 
     private Float rating;
 
     private Date created;
+
+    private boolean edited;
 
 }

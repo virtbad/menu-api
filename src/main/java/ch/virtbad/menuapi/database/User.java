@@ -1,5 +1,6 @@
 package ch.virtbad.menuapi.database;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,7 @@ public class User {
         this.joined = new Date();
     }
 
+    @JsonIgnore
     @OneToMany(mappedBy = "id.user", cascade = CascadeType.REMOVE)
     private List<Vote> votes = new ArrayList<>();
 
