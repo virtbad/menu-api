@@ -63,6 +63,8 @@ public class MenuEndpoint {
      */
     @GetMapping("/search")
     public List<Menu> searchMenus(@RequestParam(name = "query") String input, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "-1") int channel, @RequestParam(defaultValue = "-1") int label, @RequestParam(defaultValue = "0") long start, @RequestParam(defaultValue = "32503676400000") long end) {
+        if (input == null || input.length() == 0) return new ArrayList<>();
+
         // Apply basic text search query
         Query text = searchBuilder.keyword().fuzzy().onFields("title", "description").matching(input).createQuery(); // TODO: Optimize for better menu discoverability, e.g. burger and vegiburger
 
