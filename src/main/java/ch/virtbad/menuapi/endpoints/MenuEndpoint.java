@@ -8,6 +8,7 @@ import org.apache.lucene.search.Query;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.search.exception.EmptyQueryException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -35,6 +37,8 @@ public class MenuEndpoint {
     private final FullTextEntityManager search;
     private final QueryBuilder searchBuilder;
 
+    private final EntityManager manager;
+
     @Value("${custom.rest.pagesize:20}")
     private int pageSize;
 
@@ -42,7 +46,9 @@ public class MenuEndpoint {
         this.menus = menus;
         this.prices = prices;
 
-        search = Search.getFullTextEntityManager(factory.createEntityManager());
+        manager = factory.createEntityManager();
+
+        search = Search.getFullTextEntityManager(manager);
         search.createIndexer().startAndWait();
 
         searchBuilder = search.getSearchFactory().buildQueryBuilder().forEntity(Menu.class).get();
@@ -63,10 +69,16 @@ public class MenuEndpoint {
      */
     @GetMapping("/search")
     public List<Menu> searchMenus(@RequestParam(name = "query") String input, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "-1") int channel, @RequestParam(defaultValue = "-1") int label, @RequestParam(defaultValue = "0") long start, @RequestParam(defaultValue = "32503676400000") long end) {
-        if (input == null || input.length() == 0) return new ArrayList<>();
+        System.out.println("Searching for: " + input);
 
         // Apply basic text search query
-        Query text = searchBuilder.keyword().fuzzy().onFields("title", "description").matching(input).createQuery(); // TODO: Optimize for better menu discoverability, e.g. burger and vegiburger
+        Query text;
+        try {
+            // TODO: Optimize for better menu discoverability, e.g. burger and vegiburger
+            text = searchBuilder.keyword().fuzzy().onFields("title", "description").matching(input).createQuery();
+        } catch (EmptyQueryException e) {
+            return new ArrayList<>();
+        }
 
         // Apply other criteria like date or channel or whatever
         Criteria criteria = search.unwrap(Session.class).createCriteria(Menu.class); // TODO: Find a way to use jpa criteria queries together with full text queries.
@@ -128,7 +140,7 @@ public class MenuEndpoint {
 
         Menu dbMenu = new Menu(menu.title, menu.description, menu.date, menu.channel, menu.label, prices);
 
-        menus.save(dbMenu);
+        manager.persist(dbMenu); // Insert over entity manager so that the index is updated
         System.out.println("Saved menu: " + menu.title);
     }
     private static class RequestMenu {
