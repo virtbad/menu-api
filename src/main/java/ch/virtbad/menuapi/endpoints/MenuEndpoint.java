@@ -33,23 +33,40 @@ public class MenuEndpoint {
 
     private final MenuRepository menus;
     private final PriceRepository prices;
+    private final EntityManagerFactory factory;
 
-    private final FullTextEntityManager search;
-    private final QueryBuilder searchBuilder;
+    private FullTextEntityManager search;
+    private QueryBuilder searchBuilder;
 
-    private final EntityManager manager;
+    private EntityManager manager;
 
     @Value("${custom.rest.pagesize:20}")
     private int pageSize;
 
-    public MenuEndpoint(MenuRepository menus, PriceRepository prices, EntityManagerFactory factory) throws InterruptedException {
+    public MenuEndpoint(MenuRepository menus, PriceRepository prices, EntityManagerFactory factory) {
         this.menus = menus;
         this.prices = prices;
+        this.factory = factory;
 
+        createEntityManagement(true);
+    }
+
+    /**
+     * Creates the entity managers and search providers
+     * @param reindex whether to reindex the database
+     */
+    public void createEntityManagement(boolean reindex) {
         manager = factory.createEntityManager();
 
         search = Search.getFullTextEntityManager(manager);
-        search.createIndexer().startAndWait();
+        if (reindex) {
+            try {
+                search.createIndexer().startAndWait();
+            } catch (InterruptedException e) {
+                System.err.println("Failed to create indexes.");
+                e.printStackTrace();
+            }
+        }
 
         searchBuilder = search.getSearchFactory().buildQueryBuilder().forEntity(Menu.class).get();
     }
@@ -70,6 +87,7 @@ public class MenuEndpoint {
     @GetMapping("/search")
     public List<Menu> searchMenus(@RequestParam(name = "query") String input, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "-1") int channel, @RequestParam(defaultValue = "-1") int label, @RequestParam(defaultValue = "0") long start, @RequestParam(defaultValue = "32503676400000") long end) {
         System.out.println("Searching for: " + input);
+        if (!manager.isOpen()) createEntityManagement(false);
 
         // Apply basic text search query
         Query text;
@@ -140,6 +158,7 @@ public class MenuEndpoint {
 
         Menu dbMenu = new Menu(menu.title, menu.description, menu.date, menu.channel, menu.label, prices);
 
+        if (!manager.isOpen()) createEntityManagement(false);
         manager.persist(dbMenu); // Insert over entity manager so that the index is updated
         System.out.println("Saved menu: " + menu.title);
     }
