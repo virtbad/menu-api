@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -87,7 +88,6 @@ public class MenuEndpoint {
     @GetMapping("/search")
     public List<Menu> searchMenus(@RequestParam(name = "query") String input, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "-1") int channel, @RequestParam(defaultValue = "-1") int label, @RequestParam(defaultValue = "0") long start, @RequestParam(defaultValue = "32503676400000") long end) {
         System.out.println("Searching for: " + input);
-        if (!manager.isOpen()) createEntityManagement(false);
 
         // Apply basic text search query
         Query text;
@@ -110,7 +110,12 @@ public class MenuEndpoint {
         FullTextQuery query = search.createFullTextQuery(text).setCriteriaQuery(criteria).setMaxResults(pageSize).setFirstResult(pageSize * page);
 
         // Execute
-        return query.getResultList();
+        try {
+            return query.getResultList();
+        } catch (Exception e) { // Catch sql exception
+            createEntityManagement(false);
+            return query.getResultList();
+        }
     }
 
     /**
@@ -158,8 +163,12 @@ public class MenuEndpoint {
 
         Menu dbMenu = new Menu(menu.title, menu.description, menu.date, menu.channel, menu.label, prices);
 
-        if (!manager.isOpen()) createEntityManagement(false);
-        manager.persist(dbMenu); // Insert over entity manager so that the index is updated
+        try {
+            manager.persist(dbMenu); // Insert over entity manager so that the index is updated
+        } catch (Exception e) { // Catch sql exception
+            createEntityManagement(false);
+            manager.persist(dbMenu);
+        }
         System.out.println("Saved menu: " + menu.title);
     }
     private static class RequestMenu {

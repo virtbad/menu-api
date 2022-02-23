@@ -16,7 +16,7 @@ public class UserEndpoint {
 
     private final LoginManager login;
 
-    @GetMapping("/")
+    @GetMapping("")
     public User getCurrentUser(@RequestHeader HttpHeaders headers) {
         return login.login(headers);
     }
