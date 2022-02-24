@@ -145,6 +145,18 @@ public class MenuEndpoint {
         return menus.findAllByDateBetween(start, end);
     }
 
+    @GetMapping("/upcoming")
+    public List<Menu> upcomingMenus() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+
+        return menus.findAllByDateGreaterThan(calendar.getTime());
+    }
+
     /**
      * This request is used to push a new menu into the database.
      */

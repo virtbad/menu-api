@@ -107,7 +107,7 @@ public class InteractionEndpoint {
      * With this request a comment can be posted.
      */
     @PostMapping("/comment")
-    public void addComment(@RequestBody CommentRequest comment, @RequestHeader HttpHeaders headers, @PathVariable UUID id) {
+    public CommentResponse addComment(@RequestBody CommentRequest comment, @RequestHeader HttpHeaders headers, @PathVariable UUID id) {
         User user = login.login(headers);
         if (user.isBanned()) throw new Banned();
 
@@ -116,7 +116,9 @@ public class InteractionEndpoint {
         if(!comment.validate()) throw new NotAllProvided();
 
         Comment target = new Comment(user, menu, comment.title, comment.content, comment.rating);
-        comments.save(target);
+        target = comments.save(target);
+
+        return new CommentResponse(target.getId());
     }
     public static class CommentRequest {
         private float rating;
@@ -126,6 +128,10 @@ public class InteractionEndpoint {
         private boolean validate() {
             return rating >= 1 && rating <= 5 && title != null && title.length() <= 64 && content != null && content.length() <= 256;
         }
+    }
+    @AllArgsConstructor
+    public static class CommentResponse {
+        private UUID id;
     }
 
     /**

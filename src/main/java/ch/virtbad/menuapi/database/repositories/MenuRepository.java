@@ -18,4 +18,5 @@ public interface MenuRepository extends CrudRepository<Menu, UUID> {
 
     List<Menu> findAll(Pageable page);
     List<Menu> findAllByDateBetween(Date start, Date end);
+    List<Menu> findAllByDateGreaterThan(Date date);
 }
