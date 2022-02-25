@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -156,7 +155,7 @@ public class MenuEndpoint {
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
 
-        return menus.findAllByDateGreaterThan(calendar.getTime());
+        return menus.findAllByDateGreaterThanOrderByDateAscChannelAsc(calendar.getTime());
     }
 
     /**
