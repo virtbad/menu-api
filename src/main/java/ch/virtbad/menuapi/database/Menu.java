@@ -2,10 +2,7 @@ package ch.virtbad.menuapi.database;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -13,10 +10,7 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -69,4 +63,19 @@ public class Menu {
     @JsonIgnore
     @OneToMany(mappedBy = "menu", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Menu menu = (Menu) o;
+
+        return
+            channel == menu.channel &&
+            label == menu.label &&
+            title.equals(menu.title) &&
+            description.equals(menu.description) &&
+            date.getTime() == menu.date.getTime() &&
+            prices.size() == menu.prices.size() && prices.containsAll(menu.prices);
+    }
 }

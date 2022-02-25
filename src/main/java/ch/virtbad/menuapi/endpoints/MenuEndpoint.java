@@ -137,6 +137,7 @@ public class MenuEndpoint {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
         Date start = calendar.getTime();
         calendar.add(Calendar.DATE, 1);
@@ -153,6 +154,7 @@ public class MenuEndpoint {
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
 
         return menus.findAllByDateGreaterThan(calendar.getTime());
     }
@@ -175,14 +177,13 @@ public class MenuEndpoint {
 
         Menu dbMenu = new Menu(menu.title, menu.description, menu.date, menu.channel, menu.label, prices);
 
-        try {
-            manager.persist(dbMenu); // Insert over entity manager so that the index is updated
-        } catch (Exception e) { // Catch sql exception
-            createEntityManagement(false);
-            manager.persist(dbMenu);
+        List<Menu> alreadySavedMenus = menus.findAllByDate(menu.date);
+        if (alreadySavedMenus.contains(dbMenu)) {
+            System.out.println("Already have menu: " + menu.title);
+            throw new MenuAlreadyPresent();
         }
 
-        manager.flush();
+        insertUsingEntityManager(dbMenu, false); // Insert over entity manager so that the index is updated
 
         System.out.println("Saved menu: " + menu.title);
     }
@@ -204,6 +205,22 @@ public class MenuEndpoint {
         }
     }
 
+    public void insertUsingEntityManager(Menu menu, boolean again) {
+        try {
+
+            manager.getTransaction().begin();
+            manager.persist(menu);
+            manager.getTransaction().commit();
+
+        } catch (Exception e) { // Catch sql exception
+            if (again) throw e;
+
+            createEntityManagement(false);
+            insertUsingEntityManager(menu, true);
+        }
+
+    }
+
     /**
      * This exception is thrown when a menu is not found.
      */
@@ -221,4 +238,10 @@ public class MenuEndpoint {
      */
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     private static class NotAllProvided extends RuntimeException { }
+
+    /**
+     * This menu has already been added.
+     */
+    @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Menu already added.")
+    private static class MenuAlreadyPresent extends RuntimeException { }
 }
