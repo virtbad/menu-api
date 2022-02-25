@@ -181,6 +181,9 @@ public class MenuEndpoint {
             createEntityManagement(false);
             manager.persist(dbMenu);
         }
+
+        manager.flush();
+
         System.out.println("Saved menu: " + menu.title);
     }
     private static class RequestMenu {

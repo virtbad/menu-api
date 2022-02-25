@@ -20,4 +20,12 @@ public class MainEndpoint {
         private String version;
         private Date started;
     }
+
+    /**
+     * Specifies a robots.txt so crawlers can ignore the api.
+     */
+    @GetMapping(value = "/robots.txt", produces = "text/plain")
+    public String crawlerExclusion() {
+        return "User-agent: *\nDisallow: /";
+    }
 }
