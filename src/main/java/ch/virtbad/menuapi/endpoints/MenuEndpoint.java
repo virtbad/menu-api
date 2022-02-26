@@ -169,7 +169,7 @@ public class MenuEndpoint {
 
         List<Price> prices = new ArrayList<>();
         for (RequestMenu.RequestPrice price : menu.prices) {
-            Price db = this.prices.findFirstByTagAndPrice(price.tag, price.price);
+            Price db = this.prices.findFirstByTagAndPrice(price.tag.toUpperCase(), price.price);
             if (db == null) db = this.prices.save(new Price(price.tag.toUpperCase(), price.price));
             prices.add(db);
         }

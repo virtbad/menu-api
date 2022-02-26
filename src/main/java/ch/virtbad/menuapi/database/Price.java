@@ -2,6 +2,7 @@ package ch.virtbad.menuapi.database;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -26,6 +27,8 @@ public class Price {
     @Column(length = 4)
     private String tag;
 
+    // Must use DECIMAL type because it does not work with float or whatever
+    @Column(columnDefinition = "decimal(8,2)")
     private float price;
 
     @Override
