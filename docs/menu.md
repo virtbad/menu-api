@@ -5,7 +5,7 @@ This section covers the endpoints on which you can fetch menus on the website, t
 ## Menu Information
 
 The following request is to fetch the information about a specific menu found in the database. <br>
-For more information or modifications about an individual menu, there is a whole page about that [here]().
+For more information or modifications about an individual menu, there is a whole page about that [here](interaction.md).
 > ```GET /menu/{id}```
 
 * **Request**
@@ -75,10 +75,25 @@ On this request, you can get all menus on a specific date.
     * Body: List of Menu Objects
     * Common Errors: None
 
+### Upcoming Menus
+
+On this request, you can get all menus that are yet to come in a mensa.
+> ```GET /menu/upcoming```
+
+* **Request**
+    * Authorization: None
+    * Body: No
+    
+* **Response**
+    * Body: List of Menu Objects
+      * Sorted: by Date
+    * Common Errors: None
+
+
 ## Submit Menu
 
 The following request is to submit a new menu into the database. Please be aware, that due to abuse concerns, this
-endpoint can only be called from local host.
+endpoint can only be called from **localhost**.
 > ```POST /menu```
 
 * **Request**

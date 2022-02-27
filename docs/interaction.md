@@ -15,13 +15,41 @@ This request is to fetch whether a logged-in user has already voted on a menu an
     * URL Parameters
         * ```id```: uuid - This parameter specifies the uuid of the target menu.
 * **Response**
-    * Body: List of Comment Objects
-        * Sorted: By Date Created
+    * Body: Object containing voter direction
     * Common Errors:
         * Common Authorization Errors
         * 404 Not Found - Menu not present in database
 
+#### Response Body
+
+```typescript
+{
+  direction: int    // Positive = Upvoted, Negative = Downvoted, Zero = Not Voted
+}
+```
+
 ### Vote on Menu
+
+This request is to cast a vote on a menu.
+> ```PUT /menu/{id}/vote```
+* **Request**
+  * Authorization: Yes
+  * Body: Yes
+  * URL Parameters
+    * ```id```: uuid - This parameter specifies the uuid of the target menu.
+* **Response**
+  * Body: Object containing created comment id
+  * Common Errors:
+    * Common Authorization Errors
+    * 404 Not Found - Menu not present in database
+
+#### Request Body
+
+```typescript
+{
+  direction: int    // Positive = Upvoted, Negative = Downvoted, Zero = Not Voted
+}
+```
 
 ## Comments
 

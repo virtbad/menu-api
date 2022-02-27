@@ -140,6 +140,7 @@ public class MenuEndpoint {
 
         Date start = calendar.getTime();
         calendar.add(Calendar.DATE, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
         Date end = calendar.getTime();
 
         return menus.findAllByDateBetween(start, end);

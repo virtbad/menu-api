@@ -48,6 +48,33 @@ Prices are also transmitted in a special format.
 }
 ```
 
+### User Object
+Users are too transmitted in a special format.
+
+```typescript
+{
+  tag: string,          // Username of the user (text before the at symbol of the email)
+  firstname: string,    // Firstname of the user
+  lastname: string,     // Lastname of the user
+  joined: timestamp,    // Timestamp when the user first logged in
+  admin: boolean,       // Whether the user is banned from interactions
+  banned: boolean       // Whether the user is an admin
+}
+```
+
+### Comment Objects
+There is also a common object for storing comments.
+
+```typescript
+id: uuid,           // Unique id of the comment
+user: User,         // User object of the user who created the comment
+title: string,      // Title of the comment
+content: string,    // Content / text of the comment
+rating: float,      // Rating in stars of the coment
+created: timestamp, // Timestamp when created
+edited: boolean     // Whether the comment has been edited
+```
+
 ## Constants
 The api also uses different constant numbers which can mean different things.
 
