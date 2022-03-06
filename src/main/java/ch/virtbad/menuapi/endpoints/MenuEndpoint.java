@@ -76,9 +76,7 @@ public class MenuEndpoint {
      */
     @GetMapping("/{id}")
     public Menu getMenu(@PathVariable UUID id) {
-        Optional<Menu> menu = menus.findById(id);
-        if (menu.isEmpty()) throw new MenuNotFound();
-        return menu.get();
+        return menus.findById(id).orElseThrow(MenuNotFound::new);
     }
 
     /**
@@ -143,7 +141,7 @@ public class MenuEndpoint {
         calendar.add(Calendar.MILLISECOND, -1);
         Date end = calendar.getTime();
 
-        return menus.findAllByDateBetween(start, end);
+        return menus.findAllByDateBetweenOrderByChannelAsc(start, end);
     }
 
     @GetMapping("/upcoming")
