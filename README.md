@@ -14,3 +14,12 @@ Refer to the entire documentation of the endpoints and datastructures, including
 To debug this api or to navigate its source code conveniently, you may clone the repository, and open it in your
 favourite code editor. If you open it in IntellIJ Idea or something similar, you may just import the gradle Project and
 get started. If you use a more primitive code editor you can build and run it using ```./gradlew bootRun```.
+
+## Related Projects
+* [menu-website](https://github.com/virtbad/menu-website)
+* [menu-updater](https://github.com/virtbad/menu-updater)
+* [menu-telegram-bot](https://github.com/virtbad/menu-telegram-bot)
+* [menu-cli](https://github.com/virtbad/menu-cli)
+
+## License
+Coming Soon.
