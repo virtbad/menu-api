@@ -23,7 +23,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata from event
-        uses: docker/login-action@v4
+        uses: docker/metadata-action@v4
+        id: meta
         with:
           images: ghcr.io/${{ github.repository }}
 
