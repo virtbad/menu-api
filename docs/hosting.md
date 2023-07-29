@@ -2,6 +2,57 @@
 
 This guide is for people, which would like to host this api for themselves, targeting their own sv-group restaurant.
 
+## Using Docker
+
+The easiest way to host this api is to use docker. For that, you need to have docker installed on your machine.
+
+This repository contains an automatic workflow which builds a docker image and pushes it to the github container registry. From there you can pull it and run it on your machine:
+
+```bash
+docker pull ghcr.io/virtbad/menu-api:latest
+```
+ 
+> Every image has its own tag, which is the same as the version of the api. You can find all available tags [here](https://github.com/virtbad/menu-api/tags). 
+> To get the latest version use the `latest` tag.
+
+## Configuration
+
+Once pulled you need to run the container with the following environment variables to configure it properly.
+All environment variables which aren't empty can be omitted. When omitted the default value will be used. 
+The empty ones are specific for every deployment and have therefore to be set manually.
+
+```bash
+# Search Engine Config
+ENV SPRING_JPA_PROPERTIES_HIBERNATE_SEARCH_DEFAULT_DIRECTORY_PROVIDER "filesystem"
+ENV SPRING_JPA_PROPERTIES_HIBERNATE_SEARCH_DEFAULT_INDEXBASE "indexes"
+
+# Spring Config
+ENV SERVER_ERROR_INCLUDE_MESSAGE "always"
+ENV SPRING_JACKSON_DEFAULT_PROPERTY_INCLUSION "non_null"
+
+# Set your port the api should run on. If directly exposed, this should be something like port 80.
+ENV SERVER_PORT "80"
+
+# Microsoft OAuth Config
+# Provide the tenant id of your organisation
+ENV CUSTOM_MICROSOFT_TENANT ""
+# Provide the client id of your created application
+ENV CUSTOM_MICROSOFT_CLIENT ""
+# Provide the domain on which the mail addresses of your organisation ends
+ENV CUSTOM_MICROSOFT_MAIL_SUFFIX ""
+
+# Database Access and Config
+ENV SPRING_JPA_HIBERNATE_DDL_AUTO "update"
+# Provide a connection url that jdbc understands
+ENV SPRING_DATASOURCE_URL ""
+# Provide the user details for a user which has access to the database referenced in the connection url
+ENV SPRING_DATASOURCE_USERNAME ""
+ENV SPRING_DATASOURCE_PASSWORD ""
+# Leave this if you are using MariaDB
+ENV SPRING_DATASOURCE_DRIVER_CLASS_NAME "org.mariadb.jdbc.Driver"
+ENV SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT "org.hibernate.dialect.MariaDBDialect"
+```
+
 ## Obtaining an Executable
 
 The first step would be to obtain an executable of the api. This is relatively easy. A quick tutorial for Unix-based
