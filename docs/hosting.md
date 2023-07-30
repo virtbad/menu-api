@@ -33,6 +33,9 @@ SPRING_JACKSON_DEFAULT_PROPERTY_INCLUSION="non_null"
 # Set your port the api should run on. If directly exposed, this should be something like port 80.
 SERVER_PORT="80"
 
+# Ip from which new menus can be uploaded. This is used to limit the access to the upload endpoint.
+MENU_UPLOAD_IP="127.0.0.1"
+
 # Microsoft OAuth Config
 # Provide the tenant id of your organisation
 CUSTOM_MICROSOFT_TENANT=""
@@ -95,6 +98,9 @@ spring.jackson.default-property-inclusion=non_null
 
 ! Set your port the api should run on. If directly exposed, this should be something like port 80.
 server.port=[your-port]
+
+! Ip from which new menus can be uploaded. This is used to limit the access to the upload endpoint.
+menu.upload.ip=127.0.0.1
 
 ! Microsoft OAuth Config
 ! Provide the tenant id of your organisation
