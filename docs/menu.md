@@ -83,17 +83,17 @@ On this request, you can get all menus that are yet to come in a mensa.
 * **Request**
     * Authorization: None
     * Body: No
-    
+
 * **Response**
     * Body: List of Menu Objects
-      * Sorted: by Date
+        * Sorted: by Date
     * Common Errors: None
-
 
 ## Submit Menu
 
 The following request is to submit a new menu into the database. Please be aware, that due to abuse concerns, this
-endpoint can only be called from **localhost**.
+endpoint can only be called from **remote addresses which are included in the trust regex**. Refer to
+the [Hosting](hosting.md) documentation for more information.
 > ```POST /menu```
 
 * **Request**

@@ -40,6 +40,9 @@ public class MenuEndpoint {
 
     private EntityManager manager;
 
+    @Value("${custom.trust.ip:127\\.0\\.0\\.1}")
+    private String trustRegex;
+
     @Value("${custom.rest.pagesize:20}")
     private int pageSize;
 
@@ -162,7 +165,7 @@ public class MenuEndpoint {
      */
     @PostMapping("")
     public void pushMenu(HttpServletRequest request, @RequestBody RequestMenu menu) {
-        if (!"127.0.0.1".equals(request.getRemoteAddr())) throw new NotLocalHost();
+        if (!request.getRemoteAddr().matches(trustRegex)) throw new InsufficientTrust();
 
         if (!menu.validate()) throw new NotAllProvided();
 
@@ -226,10 +229,10 @@ public class MenuEndpoint {
     public static class MenuNotFound extends RuntimeException { }
 
     /**
-     * This exception is thrown when a localhost only request is made from another host.
+     * This exception is thrown when a menu upload originates from an ip other than the configured upload ip.
      */
-    @ResponseStatus(code = HttpStatus.FORBIDDEN)
-    private static class NotLocalHost extends RuntimeException { }
+    @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "You are not trusted.")
+    private static class InsufficientTrust extends RuntimeException { }
 
     /**
      * This exception is thrown when not all features of a body are provided.
