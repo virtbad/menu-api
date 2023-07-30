@@ -10,6 +10,7 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.creator.TokenValidator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.text.ParseException;
  * Validates the access tokens.
  */
 @Component
+@ConditionalOnProperty(value = "custom.interactions.enabled", havingValue = "true")
 public class AuthValidator {
 
     @Value("${custom.microsoft.tenant}")

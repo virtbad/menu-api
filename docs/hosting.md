@@ -44,6 +44,9 @@ SERVER_PORT="80"
 # Regex to set which IP addresses are trusted (to upload menus or similar), by default only localhost. If it matches, it is trusted.
 CUSTOM_TRUST_IP=""
 
+# Enable the user interactions (upvoting and commenting), by default false
+CUSTOM_INTERACTIONS_ENABLED="false"
+
 # Microsoft OAuth Config
 # Provide the tenant id of your organisation
 CUSTOM_MICROSOFT_TENANT=""
@@ -104,11 +107,18 @@ spring.jpa.properties.hibernate.search.default.indexBase=indexes
 server.error.include-message=always
 spring.jackson.default-property-inclusion=non_null
 
+
 ! These config entries are specific to your particular install.
+
 ! Set your port the api should run on. If directly exposed, this should be something like port 80.
 server.port=[your-port]
+
 ! Regex to set which IP addresses are trusted (to upload menus or similar), by default only localhost. If it matches, it is trusted.
 custom.trust.ip=[trusted-ip]
+
+! Enable the user interactions (upvoting and commenting), by default false
+custom.interactions.enable=[is-enabled]
+
 ! Microsoft OAuth Config
 ! Provide the tenant id of your organisation
 custom.microsoft.tenant=[tenant-id]
@@ -116,6 +126,7 @@ custom.microsoft.tenant=[tenant-id]
 custom.microsoft.client=[client-id]
 ! Provide the domain on which the mail addresses of your organisation ends
 custom.microsoft.mailsuffix=[organisation-mail.domain]
+
 ! Database Access and Config
 spring.jpa.hibernate.ddl-auto=update
 ! Provide a connection url that jdbc understands

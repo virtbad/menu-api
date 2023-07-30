@@ -4,6 +4,7 @@ import ch.virtbad.menuapi.database.User;
 import ch.virtbad.menuapi.database.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.Optional;
  */
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(value = "custom.interactions.enabled", havingValue = "true")
 public class LoginManager {
 
     private final AuthValidator validator;

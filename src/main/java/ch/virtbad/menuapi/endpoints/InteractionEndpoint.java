@@ -11,6 +11,7 @@ import ch.virtbad.menuapi.database.repositories.VoteRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @RequestMapping("/menu/{id}")
 @RestController
 @RequiredArgsConstructor
+@ConditionalOnProperty(value = "custom.interactions.enabled", havingValue = "true")
 public class InteractionEndpoint {
 
     private final LoginManager login;
