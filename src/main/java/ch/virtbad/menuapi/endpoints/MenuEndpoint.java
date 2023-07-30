@@ -40,8 +40,8 @@ public class MenuEndpoint {
 
     private EntityManager manager;
 
-    @Value("${menu.upload.ip:127.0.0.1}")
-    private String uploadIp;
+    @Value("${custom.trust.ip:127\\.0\\.0\\.1}")
+    private String trustRegex;
 
     @Value("${custom.rest.pagesize:20}")
     private int pageSize;
@@ -165,7 +165,7 @@ public class MenuEndpoint {
      */
     @PostMapping("")
     public void pushMenu(HttpServletRequest request, @RequestBody RequestMenu menu) {
-        if (!this.uploadIp.equals(request.getRemoteAddr())) throw new NotUploadIp();
+        if (!request.getRemoteAddr().matches(trustRegex)) throw new InsufficientTrust();
 
         if (!menu.validate()) throw new NotAllProvided();
 
@@ -231,8 +231,8 @@ public class MenuEndpoint {
     /**
      * This exception is thrown when a menu upload originates from an ip other than the configured upload ip.
      */
-    @ResponseStatus(code = HttpStatus.FORBIDDEN)
-    private static class NotUploadIp extends RuntimeException { }
+    @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "You are not trusted.")
+    private static class InsufficientTrust extends RuntimeException { }
 
     /**
      * This exception is thrown when not all features of a body are provided.
