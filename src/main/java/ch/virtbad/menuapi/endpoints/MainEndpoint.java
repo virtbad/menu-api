@@ -13,7 +13,7 @@ public class MainEndpoint {
 
     @GetMapping("/")
     public VersionResponse getVersion() {
-        return new VersionResponse("1.0.0", new Date(startTime));
+        return new VersionResponse("1.1.2", new Date(startTime));
     }
     @AllArgsConstructor
     private static class VersionResponse {
