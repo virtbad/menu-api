@@ -178,11 +178,8 @@ public class MenuEndpoint {
 
         Menu dbMenu = new Menu(menu.title, menu.description, menu.date, menu.channel, menu.label, prices);
 
-        List<Menu> alreadySavedMenus = menus.findAllByDate(menu.date);
-        if (alreadySavedMenus.contains(dbMenu)) {
-            System.out.println("Already have menu: " + menu.title);
-            throw new MenuAlreadyPresent();
-        }
+        // override menus which are already present on the same channel to prevent duplicates
+        menus.deleteAllByDateAndChannel(menu.date, menu.channel);
 
         insertUsingEntityManager(dbMenu, false); // Insert over entity manager so that the index is updated
 
@@ -239,10 +236,4 @@ public class MenuEndpoint {
      */
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     private static class NotAllProvided extends RuntimeException { }
-
-    /**
-     * This menu has already been added.
-     */
-    @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Menu already added.")
-    private static class MenuAlreadyPresent extends RuntimeException { }
 }
