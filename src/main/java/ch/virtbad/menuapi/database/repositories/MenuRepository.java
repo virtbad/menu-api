@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -21,5 +22,6 @@ public interface MenuRepository extends CrudRepository<Menu, UUID> {
     List<Menu> findAllByDateBetweenOrderByChannelAsc(Date start, Date end);
     List<Menu> findAllByDateGreaterThanOrderByDateAscChannelAsc(Date date);
     List<Menu> findAllByDate(Date date);
+    @Transactional
     void deleteAllByDateAndChannel(Date date, int channel);
 }
