@@ -21,4 +21,5 @@ public interface MenuRepository extends CrudRepository<Menu, UUID> {
     List<Menu> findAllByDateBetweenOrderByChannelAsc(Date start, Date end);
     List<Menu> findAllByDateGreaterThanOrderByDateAscChannelAsc(Date date);
     List<Menu> findAllByDate(Date date);
+    void deleteAllByDateAndChannel(Date date, int channel);
 }
